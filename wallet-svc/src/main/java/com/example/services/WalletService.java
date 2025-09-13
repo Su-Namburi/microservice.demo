@@ -47,6 +47,10 @@ public class WalletService {
 
         if(wallet != null) {
             logger.info("Wallet already exists");
+
+            JSONObject obj = new JSONObject();
+            obj.put("message","Wallet already exists");
+            kafkaTemplate.send("wallet-notifs",obj.toString());
         }
 
         wallet = Wallet.builder()
@@ -57,7 +61,9 @@ public class WalletService {
                 .build();
 
         this.walletRepository.save(wallet);
-        logger.info("Wallet created");
+        JSONObject obj = new JSONObject();
+        obj.put("message","Hurrah! Wallet created");
+        kafkaTemplate.send("wallet-notifs",obj.toString());
     }
 
     @KafkaListener(topics = "initiate-txn", groupId = "updatetxn")
@@ -83,6 +89,7 @@ public class WalletService {
             jsonObj.put("status","FAILED");
 
             this.kafkaTemplate.send("updating-txn",jsonObj.toString());
+
             return;
         }
         senderWallet.setBalance(senderWallet.getBalance() - amount);

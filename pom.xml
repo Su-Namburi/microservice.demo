@@ -25,7 +25,8 @@
 		<module>user-svc</module>
 		<module>wallet-svc</module>
 		<module>transaction-svc</module>
-	</modules>
+        <module>notification-svc</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>

@@ -51,7 +51,7 @@ public class TransactionService {
     @KafkaListener(topics = "updating-txn",groupId = "transactionStatusGroup")
     public void updateTransaction(String message) {
         JSONObject obj = (JSONObject) JSONValue.parse(message);
-
+        Long amount = (Long) obj.get("amount");
         String externalId = obj.get("externalId").toString();
         String status = obj.get("status").toString();
 
@@ -65,6 +65,16 @@ public class TransactionService {
 
         transaction.setStatus(txnStatus);
         this.transactionRepository.save(transaction);
+        if(status.equalsIgnoreCase("SUCCESS")) {
+            //transaction success ani message
+            //amount debited ani kuda show
+            String txnMessage = "Transaction Success! " + amount + " debited from wallet";
+            kafkaTemplate.send("txn-notifs",txnMessage);
+        }
+        else if(status.equalsIgnoreCase("FAILED")) {
+            String txnMessage = "Transaction Failed";
+            kafkaTemplate.send("txn-notifs",txnMessage);
+        }
 
     }
 }
